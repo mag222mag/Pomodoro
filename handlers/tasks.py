@@ -61,4 +61,4 @@ async def delete_task(
     task_id: int,
     task_repository: Annotated[TaskRepository, Depends(get_tasks_repository)]):
     task_repository.delete_task(task_id)
-    return {"message": "task deleted successfully"}    
+    return {"message": "task deleted successfully"}

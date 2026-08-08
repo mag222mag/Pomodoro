@@ -4,3 +4,4 @@ app = FastAPI()
 
 for router in routers:
     app.include_router(router)
+
