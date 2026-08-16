@@ -2,7 +2,7 @@ from sqlalchemy import select, delete, update
 from sqlalchemy.orm import Session 
 
 from models import Tasks, Categories
-from schema.task import TaskSchema
+from schema.task import TaskCreateSchema, TaskSchema
 
 
 class TaskRepository:
@@ -22,17 +22,22 @@ class TaskRepository:
               task: Tasks = session.execute(select(Tasks).where(Tasks.id == task_id)).scalar_one_or_none()
               return task
 
+    def get_user_tasks(self, task_id: int, user_id: int) -> Tasks | None:
+        query = select(Tasks).where(Tasks.id == task_id, Tasks.user_id == user_id)
+        with self.db.session() as session:
+            task: Tasks = session.execute(query).scalar_one_or_none()
 
-    def create_task(self, task: TaskSchema) -> int:
-        task_model = Tasks(name=task.name, pomodoro_count=task.pomodoro_count, category_id=task.category_id)
+
+    def create_task(self, task: TaskCreateSchema, user_id: int) -> int:
+        task_model = Tasks(name=task.name, pomodoro_count=task.pomodoro_count, category_id=task.category_id, user_id=user_id)
         with self.db_session() as session:
             session.add(task_model)
             session.commit()
             return task_model.id
 
 
-    def delete_task(self, task_id: int) -> None:
-            query = delete(Tasks).where(Tasks.id == task_id)
+    def delete_task(self, task_id: int, user_id: int) -> None:
+            query = delete(Tasks).where(Tasks.id == task_id, Tasks.user_id == user_id)
             with self.db_session() as session:
                  session.execute(query)
                  session.commit()
@@ -47,6 +52,7 @@ class TaskRepository:
     def update_task_name(self, task_id: int, name: str) -> Tasks:
         query = update(Tasks).where(Tasks.id == task_id).values(name=name).returning(Tasks.id)
         with self.db_session() as session:
-            updated_task_id: int = session.execute(query).scalar_one_or_none()
+            task_id: int = session.execute(query).scalar_one_or_none()
             session.commit()
+            session.flush()
             return self.get_task(task_id)
