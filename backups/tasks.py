@@ -40,18 +40,23 @@ async def create_task(
 
 
 
-
-@router.patch("/{task_id}", response_model=TaskSchema)
+@router.patch(
+        "/{task_id}",
+         response_model=TaskSchema
+        )
 async def patch_task(
     task_id: int,
     name: str,
     task_service: Annotated[TaskService, Depends(get_task_service)],
     user_id: int = Depends(get_request_user_id)
-):
+    ):
     try:
-        return await task_service.update_task_name(task_id=task_id, name=name, user_id=user_id)
+        return get_task_service.update_task_name(task_id=task_id, name=name, user_id=user_id)
     except TaskNotFound as e:
-        raise HTTPException(status_code=404, detail=e.detail)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=e.detail
+        )
 
 
 
