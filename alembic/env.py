@@ -4,11 +4,11 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from models import *
+from pomodoro_time.app.models import *
 from alembic import context
 
-from database import Base
-from settings import Settings
+from pomodoro_time.app.infrastructure.database import Base
+from pomodoro_time.app.settings import Settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
